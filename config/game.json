@@ -1,0 +1,46 @@
+{
+  "services": [
+    {
+      "timeout": "10",
+      "name": "service_1",
+      "program": "checkers/service_1/checker.py"
+    },
+    {
+      "timeout": "10",
+      "name": "service_2",
+      "program": "checkers/service_2/checker.py"
+    }
+  ],
+  "settings": {
+    "flags": {
+      "lifetime": 4,
+      "port": 2605
+    },
+    "admin": {
+      "login": "LOGIN",
+      "pass": "PASSWORD"
+    },
+    "round_length": 10,
+    "time": {
+      "start": 1479553500,
+      "end": 1479571500
+    },
+    "name": "YOUR_TOURNAMENT_NAME",
+    "path_to_checkers": "checkers",
+    "filename_checkers": "checker"
+  },
+  "teams": [
+    {
+      "logo": "",
+      "network": "10.60.1.0/24",
+      "host": "10.60.1.3",
+      "name": "KeVa"
+    },
+    {
+      "logo": "",
+      "network": "10.60.2.0/24",
+      "host": "10.60.2.3",
+      "name": "Life"
+    }
+  ]
+}
