@@ -11,7 +11,6 @@ import pymongo
 from ipaddress import IPv4Address, IPv4Network
 from functions import Message
 
-
 class Flags:
     socket = None
 
@@ -27,16 +26,15 @@ class Flags:
         except KeyError:
             Message.fail('Error with parse in response')
             sys.exit(0)
-
         self.life = lifetime * round_length
-        self.port = 2605 #self.config.settings['flags']['port']
+        self.port = CHECKER['PORT']
 
     def start(self):
-        Message.success('Class is initialized. Starting')
+        Message.success('Class is initialized. Starting...\nListening on port {}'.format(CHECKER['PORT']))
         try:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.bind(('0.0.0.0', self.port))
-            self.socket.listen(1)
+            self.socket.listen(100) # максимальное число соединений. учитывайте это при конфигурировании сервиса
 
             while True:
                 self.conn, self.address = self.socket.accept()
@@ -57,9 +55,6 @@ class Flags:
         print(address)
         team = False
         for e in teams:
-            #if e['network'] == '10.244.1.59/24':
-            #e['network'] = '10.244.1.0/24'
-
             if IPv4Address(address[0]) in IPv4Network(e['network']):
                 print(e)
                 team = e
@@ -89,14 +84,8 @@ class Flags:
             flag = self.db.flags.find_one({'flag': data})
 
             if not bool(flag):
-                flags_crypto = self.db.flags.find({'service.name': "crypto-inc"})
-
-                for f in flags_crypto:
-                    if f['flag'] == data.upper():
-                        flag = f
-                if not bool(flag):
-                    connection.send(('Flag is not found\n').encode())
-                    continue
+                connection.send(('Flag is not found\n').encode())
+                continue
 
             if flag['team']['_id'] == team['_id']:
                 connection.send(('It`s your flag\n').encode())

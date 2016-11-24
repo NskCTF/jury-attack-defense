@@ -11,22 +11,21 @@ class Initialize:
 
     def __init__(self, db, type):
         self.db = db
-        
         self.config = ConfigPut(type)
-
         self.delete_old_data()
         self.create_teams()
         self.create_service()
         self.generate_scoreboard()
-        
+#        self.create_settings()
+
     def delete_old_data(self):
         Message.info('Removing old data ... ')
-
         self.db.teams.delete_many({})
         self.db.services.delete_many({})
         self.db.scoreboard.delete_many({})
         self.db.flags.delete_many({})
         self.db.stolen_flags.delete_many({})
+#        self.db.settings.delete_many({})
 
         Message.info('\tDone')
 
@@ -36,6 +35,10 @@ class Initialize:
         for e in self.config.teams:
             Message.info("\tInit team {" + e["name"] + "} (Network: " + e["network"] + ")");
             self.db.teams.insert_one(e)
+
+#    def create_settings(self):
+#        Message.success('Generate settings')
+#        self.db.settings.insert_one(self.config.settings)
 
     def create_service(self):
         Message.success('Generate services')

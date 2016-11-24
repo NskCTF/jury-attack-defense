@@ -10,37 +10,26 @@ db = client.jury
 
 def init(parse):
     from classes.initialize import Initialize
-
     Initialize(db, parse.type[0])
-
 
 def start(parse):
     if parse.slave:
         from classes.zond import Zond
-
         zond = Zond(db)
-
         zond.run()
-
     else:
         from classes.round import Round
-
         round = Round(db)
         round.next()
-
         functions.set_interval(round.next, CHECKER['ROUND_LENGTH'])
-
 
 def flags(parse):
     from classes.flags import Flags
-
     flags = Flags(db)
     flags.start()
 
-
 def scoreboard(parse):
     from classes.scoreboard import Scoreboard
-
     scoreboard = Scoreboard(db)
     scoreboard.start()
 

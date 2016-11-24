@@ -11,7 +11,6 @@ class Queue:
 #            credentials=pika.credentials.PlainCredentials(QUEUE['USERNAME'], QUEUE['PASSWORD'])
         ))
         self.channel = connection.channel()
-
         self.channel.queue_declare(queue=QUEUE['QNAME'])
 
     def send(self):

@@ -12,6 +12,8 @@
     }
   ],
   "settings": {
+    "path_to_checkers": "checkers",
+    "filename_checkers": "checker",
     "flags": {
       "lifetime": 4,
       "port": 2605
