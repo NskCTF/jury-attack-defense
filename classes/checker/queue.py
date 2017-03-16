@@ -7,8 +7,8 @@ class Queue:
     def __init__(self):
         # Устанавливаем соединение
         connection = pika.BlockingConnection(pika.ConnectionParameters(
-            host=QUEUE['HOST']
-#            credentials=pika.credentials.PlainCredentials(QUEUE['USERNAME'], QUEUE['PASSWORD'])
+            host=QUEUE['HOST'],
+            credentials=pika.credentials.PlainCredentials(QUEUE['USERNAME'], QUEUE['PASSWORD'])
         ))
         self.channel = connection.channel()
         self.channel.queue_declare(queue=QUEUE['QNAME'])

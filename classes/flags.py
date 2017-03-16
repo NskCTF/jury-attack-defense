@@ -18,23 +18,20 @@ class Flags:
         self.db = db
         self.conn = None
         self.address = None
-        self.config = ConfigGet(self.db)
 
         try:
-            lifetime = CHECKER['LENGTH']
-            round_length = CHECKER['ROUND_LENGTH']
+            self.life = CHECKER['LENGTH'] * CHECKER['ROUND_LENGTH']
+            self.port = CHECKER['PORT']
         except KeyError:
             Message.fail('Error with parse in response')
             sys.exit(0)
-        self.life = lifetime * round_length
-        self.port = CHECKER['PORT']
 
     def start(self):
         Message.success('Class is initialized. Starting...\nListening on port {}'.format(CHECKER['PORT']))
         try:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.bind(('0.0.0.0', self.port))
-            self.socket.listen(100) # максимальное число соединений. учитывайте это при конфигурировании сервиса
+            self.socket.listen(CHECKER['MAX_CONNECTIONS']) # максимальное число соединений. учитывайте это при конфигурировании сервиса
 
             while True:
                 self.conn, self.address = self.socket.accept()

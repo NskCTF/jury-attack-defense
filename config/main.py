@@ -4,23 +4,26 @@ import os
 DATABASE = {
 	'HOST': 'localhost', # по умолчанию
 	'PORT': 27017, # по умолчанию
-	'AUTH': 'false', # если true, то нужно обязательно указать user/pass от базы. Новичкам рекомендуется оставить false
-	'USER': 'USER',
-	'PASSWORD': 'PASSWORD'
+	'AUTH': 'true', # если true, то нужно обязательно указать user/pass от базы. Новичкам рекомендуется оставить false
+	'USER': 'root',
+	'PASSWORD': 'toor'
 }
 # конфигурация системы проверки флагов/сервисов
 CHECKER = {
 	'PORT': 2605, # порт сервиса приёмки флагов
-	'ROUND_LENGTH': 60, # в секундах
+	'ROUND_LENGTH': 20, # в секундах
+	'FLAG_LENGTH': 20, # в секундах
+	'FLAG_PREFIX': 'NSKCTF', # в секундах
 	'LENGTH': 4, # Время жизни флага в раундах
-	'METHOD': 'queue' # async or queue
+	'METHOD': 'queue', # async or queue
+	'MAX_CONNECTIONS': 100, # максимальное число соединений сервиса flags
 }
 
 # конфигруация для RabbitMQ
 QUEUE = {
 	'HOST': 'localhost', # localhost для мастер-сервера, для остальных - real ip
-	'USERNAME': 'user', # юзер для очереди (по дефолту не требуется)
-	'PASSWORD': 'StrongPassword', # пароль для очереди (по дефолту не требуется)
+	'USERNAME': 'USERNAME', # юзер для очереди (по дефолту не требуется)
+	'PASSWORD': 'PASSWORD', # пароль для очереди (по дефолту не требуется)
 	'QNAME': 'tasks' # название очереди
 }
 

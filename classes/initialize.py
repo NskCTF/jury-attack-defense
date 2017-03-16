@@ -16,7 +16,7 @@ class Initialize:
         self.create_teams()
         self.create_service()
         self.generate_scoreboard()
-#        self.create_settings()
+        self.create_settings()
 
     def delete_old_data(self):
         Message.info('Removing old data ... ')
@@ -25,7 +25,7 @@ class Initialize:
         self.db.scoreboard.delete_many({})
         self.db.flags.delete_many({})
         self.db.stolen_flags.delete_many({})
-#        self.db.settings.delete_many({})
+        self.db.settings.delete_many({})
 
         Message.info('\tDone')
 
@@ -36,9 +36,9 @@ class Initialize:
             Message.info("\tInit team {" + e["name"] + "} (Network: " + e["network"] + ")");
             self.db.teams.insert_one(e)
 
-#    def create_settings(self):
-#        Message.success('Generate settings')
-#        self.db.settings.insert_one(self.config.settings)
+    def create_settings(self):
+        Message.success('Generate settings')
+        self.db.settings.insert_one(self.config.settings)
 
     def create_service(self):
         Message.success('Generate services')

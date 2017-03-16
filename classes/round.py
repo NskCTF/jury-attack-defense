@@ -51,12 +51,14 @@ class Round:
                     service = service,
                     flag = flag,
                     flag_id = flag_id,
-                    round = self.round_count
+                    round = self.round_count,
+                    action = 'put'
                 )
         self.checkerManager.run()
 
     def generate_flags(self):
-        flag = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for x in range(33))
+        flag = CHECKER['FLAG_PREFIX']
+        flag += ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for x in range(CHECKER['FLAG_LENGTH']))
         flag += '='
         return flag
 

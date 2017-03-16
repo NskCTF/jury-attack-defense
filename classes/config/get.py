@@ -7,10 +7,11 @@ class ConfigGet:
 
     def get_all_services(self):
         return self.db.services.find()
-#    def get_all_settings(self):
-#        return self.db.settings.find()
+
+    def get_all_settings(self):
+        return self.db.settings.find()[0]
 
     def get_all(self):
         self.teams = self.get_all_teams()
         self.services = self.get_all_services()
-#        self.settings = self.get_all_settings()
+        self.settings = self.get_all_settings()

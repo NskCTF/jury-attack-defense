@@ -1,4 +1,7 @@
+db
 *.db
 __pycache__
 *.sql
 *.DS_Store
+*.pyc
+

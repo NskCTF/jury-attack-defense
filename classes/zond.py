@@ -8,6 +8,7 @@ from bson import json_util
 from functions import Message
 from classes.checker.main import Checker
 from config.main import QUEUE
+from classes.config.get import ConfigGet
 
 try:
     import thread
@@ -16,8 +17,6 @@ except ImportError:
 
 
 class Zond:
-    path_to_checkers = 'checkers/'
-    filename_checkers = 'checker'
     thread = []
 
     codes = {
@@ -28,14 +27,16 @@ class Zond:
     }
 
     def __init__(self, db):
-        self.db = db
-        self.checker = Checker()
+        self.db = db # соединение с базой данных
+        self.settings = ConfigGet(self.db).get_all_settings() # загрузка файла с настройками сервера
+        self.checker = Checker() # подргружаем чекер (QUEUE or ASYNC)
         connection = pika.BlockingConnection(pika.ConnectionParameters(
-            host=QUEUE['HOST']
-#            credentials=pika.credentials.PlainCredentials(QUEUE['USERNAME'], QUEUE['PASSWORD'])
+            host=QUEUE['HOST'],
+            credentials=pika.credentials.PlainCredentials(QUEUE['USERNAME'], QUEUE['PASSWORD'])
         ))
         self.channel = connection.channel()
         self.channel.queue_declare(queue=QUEUE['QNAME'])
+
         print(' [*] Waiting for messages. To exit press CTRL+C')
 
     def run(self):
@@ -44,55 +45,30 @@ class Zond:
                               no_ack=True)
         self.channel.start_consuming()
 
+    # данная функция срабатывает при каждом пришедшем пакете из MQTT. Идёт обработка
     def callback(self, ch, method, properties, body):
         data = json.loads(body.decode('utf8'))
+        print(" [x] Received %r %r" % (data['team']['name'], data['service']['name']))
 
-        print(" [x] Received %r %r" % (data['team']['name'],data['service']['name']))
+        #if data['action'] == 'update':
+        #Message.info('\t UPDATING checker files!')
+        if not os.path.exists(self.settings['path_to_checkers']  + data['service']['name']):
+            os.mkdir(self.settings['path_to_checkers']  + data['service']['name'], mode=0o777)
 
-        if not os.path.exists('checkers/' + data['service']['name'] + '/checker'):
-            if not os.path.exists('checkers/' + data['service']['name']):
-                os.mkdir('checkers/' + data['service']['name'], mode=0o777)
-
-            file = open('checkers/' + data['service']['name'] + '/checker', 'w')
-            file.write(data['service']['program'] + "\r\n")
-            file.close()
+        file = open(self.settings['path_to_checkers']  + data['service']['name'] + self.settings['filename_checkers'], 'w')
+        file.write(data['service']['program'] + "\r\n")
+        file.close()
 
         self.thread.append(threading.Thread(
             name=(data['team']['name'] + data['service']['name']),
             target=self.to_service,
-            args=(data['round'], data['team'], data['service'], data['flag'], data['flag_id']))
+            args=(data['action'], data['round'], data['team'], data['service'], data['flag'], data['flag_id']))
         )
         self.thread[-1].daemon = True
         self.thread[-1].start()
 
-        for e, j in enumerate(self.thread):
-            j.join(timeout=1)
-
-    def cdquit(self, fn_name):
-        # print to stderr, unbuffered in Python 2.
-        print('{0} took too long'.format(fn_name), file=sys.stderr)
-        sys.stderr.flush()  # Python 3 stderr is likely buffered.
-        thread.interrupt_main()  # raises KeyboardInterrupt
-
-    def exit_after(self, s):
-        '''
-        use as decorator to exit process if
-        function takes longer than s seconds
-        '''
-
-        def outer(fn):
-            def inner(*args, **kwargs):
-                timer = threading.Timer(s, self.cdquit, args=[fn.__name__])
-                timer.start()
-                try:
-                    result = fn(*args, **kwargs)
-                finally:
-                    timer.cancel()
-                return result
-            return inner
-        return outer
-
-    def to_service(self, round, team, service, flag, flag_id):
+    # это тред чекера. Для каждого сервиса/команды - свой
+    def to_service(self, action, round, team, service, flag, flag_id):
         team = json_util.loads(json.dumps(team))
         service = json_util.loads(json.dumps(service))
 
@@ -106,16 +82,17 @@ class Zond:
             'timestamp': time.time()
         })
 
-        path = self.path_to_checkers + service['name'] + '/' + self.filename_checkers
+        path = self.settings['path_to_checkers'] + '/' + service['name'] + '/' + self.settings['filename_checkers']
 
-        action = ''
         try:
-            action = 'check'
-            self.checker.check(team['host'], path)
-            action = 'put'
-            self.checker.put(team['host'], path, flag, flag_id)
-            action = 'get'
-            self.checker.get(team['host'], path, flag, flag_id)
+
+            if action == 'check':
+                self.checker.check(team['host'], path)
+            if action == 'put':
+                self.checker.put(team['host'], path, flag, flag_id)
+            if action ==     'get':
+                self.checker.get(team['host'], path, flag, flag_id)
+
             self.update_scoreboard(team, service, 101)
 
         except Exception as error:
