@@ -20,8 +20,10 @@ def start(parse):
     else:
         from classes.round import Round
         round = Round(db)
-        round.next()
-        functions.set_interval(round.next, CHECKER['ROUND_LENGTH'])
+        round.nextPut()
+        round.nextCheck()
+        functions.set_interval(round.nextPut, CHECKER['ROUND_LENGTH'])
+        functions.set_interval(round.nextCheck, CHECKER['CHECK_LENGTH'])
 
 def flags(parse):
     from classes.flags import Flags

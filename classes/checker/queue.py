@@ -26,7 +26,7 @@ class Queue:
                 routing_key=QUEUE['QNAME'],
                 body=json.dumps(task, default=json_util.default)
             )
-            print('Sended')
+        print('Sended')
 
     def clear(self):
         # Если вдруг у нас задания не отправились в очередь

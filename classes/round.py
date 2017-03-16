@@ -28,7 +28,7 @@ class Round:
         self.get_round_number()
         Message.info('\t Last round number - ' + str(self.round_count))
 
-    def next(self):
+    def nextPut(self):
         #TODO: косяк в status_service
         # Подводим итоги предыдущего раунда
 
@@ -44,7 +44,7 @@ class Round:
                 flag = self.generate_flags()
                 flag_id = self.generate_flag_ids()
 
-                print(team['name'] + ' ' + service['name'] + ' ' + flag)
+                Message.info(team['name'] + ' ' + service['name'] + ' ' + flag)
 
                 self.checkerManager.put(
                     team = team,
@@ -56,11 +56,26 @@ class Round:
                 )
         self.checkerManager.run()
 
+    def nextCheck(self):
+
+        Message.success('Check availability of services... ')
+
+        for team in self.config.get_all_teams():
+            for service in self.config.get_all_services():
+
+                self.checkerManager.put(
+                    team = team,
+                    service = service,
+                    flag = None,
+                    flag_id = None,
+                    round = self.round_count,
+                    action = 'check'
+                )
+        self.checkerManager.run()
+
+    # метод генерации флага. Состоит из префикса (настраивается в конфиге), суффикса (рандомная строка N символов) и постфикса (=)
     def generate_flags(self):
-        flag = CHECKER['FLAG_PREFIX']
-        flag += ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for x in range(CHECKER['FLAG_LENGTH']))
-        flag += '='
-        return flag
+        return CHECKER['FLAG_PREFIX'] + ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for x in range(CHECKER['FLAG_LENGTH'])) + '='
 
     def generate_flag_ids(self):
         return ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for x in range(10))

@@ -50,12 +50,13 @@ class Zond:
         data = json.loads(body.decode('utf8'))
         print(" [x] Received %r %r" % (data['team']['name'], data['service']['name']))
 
+        path = self.settings['path_to_checkers'] + "/" + data['service']['name']
         #if data['action'] == 'update':
         #Message.info('\t UPDATING checker files!')
-        if not os.path.exists(self.settings['path_to_checkers']  + data['service']['name']):
-            os.mkdir(self.settings['path_to_checkers']  + data['service']['name'], mode=0o777)
+        if not os.path.exists(path):
+            os.mkdir(path, mode=0o777)
 
-        file = open(self.settings['path_to_checkers']  + data['service']['name'] + self.settings['filename_checkers'], 'w')
+        file = open(path + "/" + self.settings['filename_checkers'], 'w')
         file.write(data['service']['program'] + "\r\n")
         file.close()
 
@@ -90,7 +91,7 @@ class Zond:
                 self.checker.check(team['host'], path)
             if action == 'put':
                 self.checker.put(team['host'], path, flag, flag_id)
-            if action ==     'get':
+            if action == 'get':
                 self.checker.get(team['host'], path, flag, flag_id)
 
             self.update_scoreboard(team, service, 101)
